@@ -11,13 +11,13 @@ branding:
 
 runs:
   using: composite
-    steps:
-      - name: Set up Deno
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v1.x
+  steps:
+    - name: Set up Deno
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: v1.x
 
-      - name: Summarize pull requests
-        run: deno run --allow-net --allow-env main.ts
-        env:
-          OPENAI_API_KEY: ${{ inputs.openai_api_key }}
+    - name: Summarize pull requests
+      run: deno run --allow-net --allow-env main.ts
+      env:
+        OPENAI_API_KEY: ${{ inputs.openai_api_key }}
