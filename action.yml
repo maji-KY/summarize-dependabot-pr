@@ -18,7 +18,8 @@ runs:
         deno-version: v1.x
 
     - name: Summarize pull requests
-      run: deno run --allow-net --allow-env main.ts
+      run: deno run --allow-net --allow-env $GITHUB_ACTION_PATH/main.ts
       shell: bash
       env:
         OPENAI_API_KEY: ${{ inputs.openai_api_key }}
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
