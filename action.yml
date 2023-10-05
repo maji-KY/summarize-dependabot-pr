@@ -4,6 +4,9 @@ inputs:
   openai_api_key:
     description: OpenAIのAPIキー
     required: true
+  github_token:
+    description: GitHubのトークン
+    required: true
 
 branding:
   icon: award
@@ -22,4 +25,5 @@ runs:
       shell: bash
       env:
         OPENAI_API_KEY: ${{ inputs.openai_api_key }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
         GITHUB_ACTION_PATH: ${{ github.action_path }}
