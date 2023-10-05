@@ -1,0 +1,23 @@
+name: Dependabot Summarize Comment
+description: Dependabotのプルリクの要約コメント作成
+inputs:
+  openai_api_key:
+    description: OpenAIのAPIキー
+    required: true
+
+branding:
+  icon: award
+  color: orange
+
+runs:
+  using: composite
+    steps:
+      - name: Set up Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v1.x
+
+      - name: Summarize pull requests
+        run: deno run --allow-net --allow-env main.ts
+        env:
+          OPENAI_API_KEY: ${{ inputs.openai_api_key }}
