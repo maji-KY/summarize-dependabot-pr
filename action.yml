@@ -19,5 +19,6 @@ runs:
 
     - name: Summarize pull requests
       run: deno run --allow-net --allow-env main.ts
+      shell: bash
       env:
         OPENAI_API_KEY: ${{ inputs.openai_api_key }}
