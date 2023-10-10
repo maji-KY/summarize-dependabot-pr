@@ -3,7 +3,7 @@ import { DiffInfo, removeCommandsSection } from "./pr.ts";
 import { extractCompareInfoAll, GitHubCompareInfo } from "./compare_info.ts";
 import { getCommentFromAI } from "./gpt.ts";
 
-// 環境変数からGitHubトークンとリポジトリ情報を取得する
+const pr_number = Deno.env.get("PR_NUMBER");
 const token = Deno.env.get("GITHUB_TOKEN");
 const [owner, repo] = (Deno.env.get("GITHUB_REPOSITORY") || "").split("/");
 
@@ -40,48 +40,36 @@ async function createAiComment(text: string): Promise<string> {
   });
 }
 
-/** プルリクエスト一覧をフェッチして処理する */
-async function processPullRequests() {
-  try {
-    // 開いているプルリクエストを取得する
-    const { data: pullRequests } = await octokit.pulls.list({
-      owner,
-      repo,
-      state: "open",
-    });
+async function processPullRequest() {
+  const pull_number = parseInt(pr_number!, 10);
 
-    // dependabotによって作成されたプルリクエストをフィルタする
-    const dependabotPRs = pullRequests.filter((pr) =>
-      pr.user!.login === "dependabot[bot]"
-    );
+  const { data: pr } = await octokit.pulls.get({
+    owner,
+    repo,
+    pull_number,
+  });
 
-    // 各プルリクエストを処理する
-    for (const pr of dependabotPRs) {
-      // プルリクエストのコメントを取得する
-      const { data: comments } = await octokit.issues.listComments({
-        owner,
-        repo,
-        issue_number: pr.number,
-      });
-      // 処理済みなら飛ばす
-      if (comments.find((x) => x.body?.includes(warnMessage))) {
-        continue;
-      }
-
-      const aiComment = await createAiComment(pr.body!);
-
-      // コメントをプルリクエストに追加する
-      await octokit.issues.createComment({
-        owner,
-        repo,
-        issue_number: pr.number,
-        body: aiComment + warnMessage,
-      });
-    }
-  } catch (error) {
-    console.error("Error processing pull requests:", error);
+  // プルリクエストのコメントを取得する
+  const { data: comments } = await octokit.issues.listComments({
+    owner,
+    repo,
+    issue_number: pr.number,
+  });
+  // 処理済みなら飛ばす
+  if (comments.find((x) => x.body?.includes(warnMessage))) {
+    return;
   }
+
+  const aiComment = await createAiComment(pr.body!);
+
+  // コメントをプルリクエストに追加する
+  await octokit.issues.createComment({
+    owner,
+    repo,
+    issue_number: pr.number,
+    body: aiComment + warnMessage,
+  });
 }
 
 // 関数を呼び出す
-processPullRequests();
+processPullRequest();
